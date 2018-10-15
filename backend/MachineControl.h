@@ -2,6 +2,7 @@
 #include "MachineMessage.h"
 #include "NonAssignable.h"
 #include "NonCopyable.h"
+#include <memory>
 
 
 namespace StateMachineForward
@@ -17,5 +18,7 @@ public:
 	virtual void sendMessage(const MachineMessage& message) = 0;
 	virtual void setManager(ManagerMessagesControl* manager) = 0;
 };
+
+using PtrMachineControl = std::unique_ptr<MachineControl>;
 
 } // end namespace StateMachineForward

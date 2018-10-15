@@ -1,56 +1,79 @@
 #include "MachineBase.h"
 #include "ManagerMessagesControl.h"
+#include "MachineAction.h"
+#include <iostream>
 
 
 namespace StateMachineForward
 {
 
-bool MachineBase::_handleMessage(const MachineMessage& message)
+PtrMachineAction MachineBase::createActionDontNext() const
 {
-	if (true == this->_handleParent(message))
+	return PtrMachineAction(new MachineActionDontNext());
+}
+
+PtrMachineAction MachineBase::createActionNext() const
+{
+	return {};
+}
+
+void MachineBase::_setChild(std::unique_ptr<MachineControl>&& child)
+{
+	this->m_child.reset();
+	if (child)
 	{
-		return true;
+		this->m_child = std::move(child);
+		if (auto childCurrent = m_child.get())
+		{
+			if (auto ch = dynamic_cast<MachineBase*>(childCurrent))
+			{
+				ch->setManager(m_manager);
+			}
+		}
+	}
+}
+
+void MachineBase::sendMessage(const MachineMessage& message)
+{
+	const auto action = this->_handleParent(message);
+	if (action)
+	{
+		if (action->cast<MachineActionDontNext>())
+		{
+			return;
+		}
+		else if (const auto actionSwitch = action->cast<MessageSwitchChild>())
+		{
+			std::cout << "CHECK MessageSwitchChild" << std::endl;
+			this->_setChild({});
+			std::cout << "CHILD NULL" << std::endl;
+			this->_setChild(actionSwitch->createChild());
+			std::cout << "CHILD SET" << std::endl;
+		}
 	}
 	if (m_child)
 	{
 		auto child = dynamic_cast<MachineBase*>(m_child.get());
 		if (child)
 		{
-			return child->_handleMessage(message);
+			return child->sendMessage(message);
 		}
 	}
-	return false;
-}
-
-void MachineBase::sendMessage(const MachineMessage& message)
-{
-	this->_handleMessage(message);
 }
 
 void MachineBase::setManager(ManagerMessagesControl* manager)
 {
-	if (manager == m_manager)
+	if (manager != m_manager)
 	{
-		return;
-	}
-	this->_setManager(manager);
-}
-
-void MachineBase::_setManager(ManagerMessagesControl* manager)
-{
-	m_manager = manager;
-	if (m_manager)
-	{
-		m_manager->setMachineRoot(this);
+		m_manager = manager;
+		if (m_manager)
+		{
+			m_manager->setMachineRoot(this);
+		}
 	}
 }
 
-PtrMachineMessage MachineBase::MessageSwitchChild::createChild() const
-{
-	return nullptr;
-}
-
-const MachineControl* MachineBase::MessageSwitchChild::getMachineMsg() const
+std::unique_ptr<MachineControl> MachineBase::MessageSwitchChild::createChild() const
 {
 	return nullptr;
 }

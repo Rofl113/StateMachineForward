@@ -1,5 +1,4 @@
 #pragma once
-#include <memory>
 #include "NonAssignable.h"
 #include "NonCopyable.h"
 
@@ -16,8 +15,5 @@ public:
 		return dynamic_cast<const T*>(this);
 	}
 };
-
-
-using PtrMachineMessage = std::unique_ptr<const MachineMessage>;
 
 } // end namespace StateMachineForward
