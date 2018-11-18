@@ -27,11 +27,13 @@ class StateB: public StateBase
 {
 public:
 	StateB()
-		: StateBase() {
-		std::cout << "CREATE class StateB" << std::endl;
+		: StateBase()
+	{
+		printf("CREATE class StateB\n");
 	}
-	~StateB() {
-		std::cout << "DELETE class StateB" << std::endl;
+	virtual ~StateB() override
+	{
+		printf("DELETE class StateB\n");
 	}
 };
 
@@ -39,11 +41,13 @@ class StateA: public StateBase
 {
 public:
 	StateA()
-		: StateBase() {
-		std::cout << "CREATE class StateA" << std::endl;
+		: StateBase()
+	{
+		printf("CREATE class StateA\n");
 	}
-	~StateA() {
-		std::cout << "DELETE class StateA" << std::endl;
+	virtual ~StateA() override
+	{
+		printf("DELETE class StateA\n");
 	}
 protected:
 	virtual PtrMachineAction handleMessage(const MachineMessage& message) override
@@ -74,32 +78,14 @@ protected:
 
 int main(int argc, char *argv[])
 {
-	std::unique_ptr<ManagerMessagesControl> manager;
-	{
-		auto mana = new ManagerMessages;
-		if (!mana)
-		{
-			return -1;
-		}
-		manager = std::unique_ptr<ManagerMessagesControl>(mana);
-		mana = nullptr;
-	}
-
-	std::unique_ptr<MachineControl> machine;
-	{
-		auto mach = new StateMachineMain();
-		if (!mach)
-		{
-			return -2;
-		}
-		machine = std::unique_ptr<MachineControl>(mach);
-		mach = nullptr;
-	}
+	std::unique_ptr<ManagerMessagesControl> manager (new ManagerMessages());
+	std::unique_ptr<MachineControl> machine (new StateMachineMain());
 
 	std::cout << "Example Start" << std::endl;
 	manager->setMachineRoot(machine.get());
 	manager->pushMessages(MessageSwitch::create("manager->sendMessage (AfterSetRoot)"));
 	manager->processMessages();
+	machine->sendMessage(MessageSwitch("manager->sendMessage (AfterSetRoot)"));
 	std::cout << "Example Finish" << std::endl;
 
 	return 0;
