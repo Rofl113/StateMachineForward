@@ -1,16 +1,17 @@
 #pragma once
-#include "NonAssignable.h"
-#include "NonCopyable.h"
 
 namespace StateMachineForward
 {
 
-class MachineMessage: private NonAssignable, private NonCopyable
+class MachineMessage
 {
 public:
+	MachineMessage& operator=(const MachineMessage &) = delete;
+	MachineMessage(const MachineMessage &) = delete;
+
 	MachineMessage();
-	virtual ~MachineMessage() override;
-	template <class T = MachineMessage>
+	virtual ~MachineMessage();
+	template <typename T = MachineMessage>
 	const T* cast() const {
 		return dynamic_cast<const T*>(this);
 	}

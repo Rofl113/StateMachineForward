@@ -1,5 +1,6 @@
 #pragma once
 #include <queue>
+#include "MachineBase.h"
 #include "ManagerMessagesControl.h"
 
 
@@ -7,20 +8,22 @@ namespace StateMachineForward
 {
 
 // Менеджер Сообщений
-class ManagerMessages : public ManagerMessagesControl
+class ManagerMessages : public MachineBase, public ManagerMessagesControl
 {
 public:
 	explicit ManagerMessages();
 	virtual ~ManagerMessages() override;
+
+	virtual void setMachine(std::unique_ptr<MachineControl>&& machine) override;
 	virtual bool pushMessages(PtrMachineMessage&& msg) override;
 	virtual bool processMessages() override;
-	virtual void setMachineRoot(MachineControl* machine) override;
 
 private:
-	void _setMachineRoot(MachineControl* machine);
+	virtual std::unique_ptr<MachineAction> _handleEnter() override;
+	virtual std::unique_ptr<MachineAction> _handleMessage(const MachineMessage& message) override;
+	virtual std::unique_ptr<MachineAction> _handleExit() override;
 
 	std::queue<PtrMachineMessage> m_msgQueue;
-	MachineControl* m_machineRoot;
 };
 
 } // end namespace StateMachineForward

@@ -1,11 +1,11 @@
 #include "ManagerMessages.h"
-#include "MachineBase.h"
+#include "MachineControl.h"
+
 
 namespace StateMachineForward
 {
 
 ManagerMessages::ManagerMessages()
-	: m_machineRoot(nullptr)
 {
 
 }
@@ -26,37 +26,38 @@ bool ManagerMessages::processMessages()
 	std::queue<PtrMachineMessage> empty;
 	std::swap(m_msgQueue, empty);
 
-	if (nullptr == m_machineRoot)
+	if (auto m = this->_getChild())
 	{
-		return false;
+		while (not empty.empty())
+		{
+			const auto message = std::move(empty.front());
+			empty.pop();
+			m->pushMessage(message);
+		}
+		return true;
 	}
-
-	while (not empty.empty())
-	{
-		const auto message = std::move(empty.front());
-		empty.pop();
-		m_machineRoot->sendMessage(*message.get());
-	}
-
-	return true;
+	return false;
 }
 
-void ManagerMessages::setMachineRoot(MachineControl* machine)
+std::unique_ptr<MachineAction> ManagerMessages::_handleEnter()
 {
-	if (machine == m_machineRoot)
-	{
-		return;
-	}
-	_setMachineRoot(machine);
+	return this->createActionNext();
 }
 
-void ManagerMessages::_setMachineRoot(MachineControl* machine)
+std::unique_ptr<MachineAction> ManagerMessages::_handleMessage(const MachineMessage& /*message*/)
 {
-	m_machineRoot = machine;
-	if (m_machineRoot)
-	{
-		m_machineRoot->setManager(this);
-	}
+	return this->createActionNext();
+}
+
+std::unique_ptr<MachineAction> ManagerMessages::_handleExit()
+{
+	return this->createActionNext();
+}
+
+void ManagerMessages::setMachine(std::unique_ptr<MachineControl>&& machine)
+{
+	this->_popChild();
+	this->_pushChild(std::move(machine));
 }
 
 } // end namespace StateMachineForward

@@ -1,8 +1,6 @@
 #pragma once
 #include "MachineMessage.h"
 #include <memory>
-#include "NonAssignable.h"
-#include "NonCopyable.h"
 
 namespace StateMachineForward
 {
@@ -12,14 +10,17 @@ class MachineControl;
 using PtrMachineMessage = std::shared_ptr<const MachineMessage>;
 
 // Менеджер Сообщений
-class ManagerMessagesControl: private NonAssignable, private NonCopyable
+class ManagerMessagesControl
 {
+	ManagerMessagesControl& operator=(const ManagerMessagesControl &) = delete;
+	ManagerMessagesControl(const ManagerMessagesControl &) = delete;
 public:
 	ManagerMessagesControl() = default;
 	virtual ~ManagerMessagesControl() = default;
-	virtual bool pushMessages(PtrMachineMessage&& message) = 0;
+
+	virtual void setMachine(std::unique_ptr<MachineControl>&& machine) = 0;
+	virtual bool pushMessages(PtrMachineMessage&& msg) = 0;
 	virtual bool processMessages() = 0;
-	virtual void setMachineRoot(MachineControl* machine) = 0;
 };
 
 } // end namespace StateMachineForward

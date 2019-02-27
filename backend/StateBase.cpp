@@ -2,38 +2,106 @@
 #include "StateMachineBase.h"
 
 
+
 namespace StateMachineForward
 {
 
-std::unique_ptr<MachineAction> StateBase::handleMessage(const MachineMessage& /*message*/)
+namespace
 {
-	return {};
+	class MachineActionSwitchSm : public MachineAction
+	{
+	public:
+		MachineActionSwitchSm(StateBase::TypeFuncCreateSm&& func) : m_func(func) {}
+		const StateBase::TypeFuncCreateSm m_func;
+	};
+
+	class MachineActionPushSm : public MachineAction
+	{
+	public:
+		MachineActionPushSm(StateBase::TypeFuncCreateSm&& func) : m_func(func) {}
+		const StateBase::TypeFuncCreateSm m_func;
+	};
+
+	class MachineActionPopSm : public MachineAction
+	{
+	public:
+		MachineActionPopSm(StateMachineBase* sm) : m_sm(sm) {}
+		const StateMachineBase* m_sm;
+	};
+} // end namespace
+
+PtrMachineAction StateBase::handleEnter()
+{
+	return this->createActionNext();
 }
 
-PtrMachineAction StateBase::createActionSwitchState(StateBase::TypeFuncCreateState&& func)
+PtrMachineAction StateBase::handleMessage(const MachineMessage& /*message*/)
 {
-	return PtrMachineAction{ new MachineActionSwitchState(std::move(func)) };
+	return this->createActionNext();
 }
 
-void StateBase::setStateMachine(std::unique_ptr<StateMachineBase>&& sm)
+PtrMachineAction StateBase::handleExit()
 {
-	std::unique_ptr<MachineControl> smControl { sm.get() };
-	sm = nullptr;
-	this->_setChild(std::move(smControl));
+	return this->createActionNext();
 }
 
-std::unique_ptr<MachineAction> StateBase::_handleParent(const MachineMessage& message)
+PtrMachineAction StateBase::createActionSwitchSm(StateBase::TypeFuncCreateSm&& func) const
+{
+	return PtrMachineAction{ new MachineActionSwitchSm(std::move(func)) };
+}
+
+PtrMachineAction StateBase::createActionPushSm(StateBase::TypeFuncCreateSm&& func) const
+{
+	return PtrMachineAction{ new MachineActionPushSm(std::move(func)) };
+}
+
+PtrMachineAction StateBase::createActionPopSm(StateMachineBase* sm) const
+{
+	return PtrMachineAction{ new MachineActionPopSm(sm) };
+}
+
+const StateMachineBase* StateBase::getParent() const
+{
+	return this->_getParent()->cast<StateMachineBase>();
+}
+
+PtrMachineAction StateBase::_handleEnter()
+{
+	return this->handleEnter();
+}
+
+PtrMachineAction StateBase::_handleMessage(const MachineMessage& message)
 {
 	return this->handleMessage(message);
 }
 
-StateBase::MachineActionSwitchState::MachineActionSwitchState(StateBase::TypeFuncCreateState&& func)
-	: m_func (func)
-{}
-
-std::unique_ptr<MachineControl> StateBase::MachineActionSwitchState::createChild() const
+PtrMachineAction StateBase::_handleExit()
 {
-	return std::unique_ptr<MachineControl>{ this->m_func() };
+	return this->handleExit();
+}
+
+bool StateBase::processAction(const MachineAction* action)
+{
+	if (const auto actionSwitch = action->cast<MachineActionSwitchSm>())
+	{
+		this->_popChild();
+		this->_pushChild(std::unique_ptr<MachineControl>(actionSwitch->m_func()));
+		return true;
+	}
+	else if (const auto actionPush = action->cast<MachineActionPushSm>())
+	{
+		this->_pushChild(std::unique_ptr<MachineControl>(actionPush->m_func()));
+		return true;
+	}
+	else if (const auto actionPop = action->cast<MachineActionPopSm>())
+	{
+		if (this->_getChild() == actionPop->m_sm)
+		{
+			this->_popChild();
+		}
+		return true;
+	}
+	return ClassBase::processAction(action);
 }
 
 } // end namespace StateMachineForward

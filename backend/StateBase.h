@@ -10,32 +10,52 @@ class StateMachineBase;
 
 class StateBase : public MachineBase, public StateControl
 {
+	using ClassBase = MachineBase;
 protected:
 	StateBase() = default;
 
 public:
 	virtual ~StateBase() override = default;
 
-private:
-	using TypeFuncCreateState = std::function<StateBase*()>;
-	class MachineActionSwitchState: public MessageSwitchChild
+	using TypeFuncCreateSm = std::function<StateMachineBase*()>;
+
+	PtrMachineAction createActionSwitchSm(TypeFuncCreateSm&& func) const;
+	PtrMachineAction createActionPushSm(TypeFuncCreateSm&& func) const;
+	PtrMachineAction createActionPopSm(StateMachineBase* sm) const;
+
+	template<typename TState, typename ... TArgs>
+	PtrMachineAction createActionSwitchSm(TArgs&& ... args) const
 	{
-	public:
-		MachineActionSwitchState(TypeFuncCreateState&& func);
-		virtual ~MachineActionSwitchState() override = default;
-	private:
-		virtual std::unique_ptr<MachineControl> createChild() const override;
-		const TypeFuncCreateState m_func;
-	};
-protected:
-	virtual PtrMachineAction handleMessage(const MachineMessage& message) override;
+		auto func = [args...] () -> StateMachineBase*
+		{
+			return { new TState(std::forward<TArgs>(args)...) };
+		};
+		return this->createActionSwitchSm(std::move(func));
+	}
+
+	template<typename TState, typename ... TArgs>
+	PtrMachineAction createActionPushSm(TArgs&& ... args) const
+	{
+		auto func = [args...] () -> StateMachineBase*
+		{
+			return { new TState(std::forward<TArgs>(args)...) };
+		};
+		return this->createActionSwitchSm(std::move(func));
+	}
 
 protected:
-	PtrMachineAction createActionSwitchState(TypeFuncCreateState&& func);
-	void setStateMachine(std::unique_ptr<StateMachineBase>&& sm);
+	virtual PtrMachineAction handleEnter() override;
+	virtual PtrMachineAction handleMessage(const MachineMessage& message) override;
+	virtual PtrMachineAction handleExit() override;
+
+	const StateMachineBase* getParent() const;
 
 private:
-	virtual std::unique_ptr<MachineAction> _handleParent(const MachineMessage& message) override;
+	virtual PtrMachineAction _handleEnter() override;
+	virtual PtrMachineAction _handleMessage(const MachineMessage& message) override;
+	virtual PtrMachineAction _handleExit() override;
+
+	virtual bool processAction(const MachineAction* action) override;
 };
 
 } // end namespace StateMachineForward

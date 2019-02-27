@@ -1,15 +1,16 @@
 #pragma once
-#include "NonAssignable.h"
-#include "NonCopyable.h"
 #include <memory>
 
 
 namespace StateMachineForward
 {
 
-	class MachineAction : private NonAssignable, private NonCopyable
+	class MachineAction
 	{
 	public:
+		MachineAction& operator=(const MachineAction &) = delete;
+		MachineAction(const MachineAction &) = delete;
+
 		MachineAction() = default;
 		virtual ~MachineAction() = default;
 		template<typename T>

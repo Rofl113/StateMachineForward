@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
 set(SOURCES_SM
-	./NonAssignable.h
-	./NonCopyable.h
 	./MachineAction.h
 	./MachineControl.h
 	./MachineBase.cpp

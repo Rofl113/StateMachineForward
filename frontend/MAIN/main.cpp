@@ -55,7 +55,7 @@ protected:
 		if (const auto msg = message.cast<MessageSwitch>())
 		{
 			std::cout << "CHECK MessageSwitch: " << msg->m_name << std::endl;
-			return this->createActionSwitchState([] { return new StateB(); });
+			return this->getParent()->createActionSwitchState<StateB>();
 		}
 		return this->createActionNext();
 	}
@@ -67,10 +67,13 @@ public:
 	StateMachineMain()
 		: StateMachineBase()
 	{
-		this->setState(std::unique_ptr<StateBase>{new StateA()});
 	}
 protected:
-	virtual PtrMachineAction handleMessage(const MachineMessage& message) override
+	virtual PtrMachineAction handleEnter() override
+	{
+		return this->createActionPushState<StateA>();
+	}
+	virtual PtrMachineAction handleMessage(const MachineMessage& /*message*/) override
 	{
 		return this->createActionNext();
 	}
@@ -79,13 +82,14 @@ protected:
 int main(int argc, char *argv[])
 {
 	std::unique_ptr<ManagerMessagesControl> manager (new ManagerMessages());
-	std::unique_ptr<MachineControl> machine (new StateMachineMain());
+	{
+		std::unique_ptr<MachineControl> machine (new StateMachineMain());
+		manager->setMachine(std::move(machine));
+	}
 
 	std::cout << "Example Start" << std::endl;
-	manager->setMachineRoot(machine.get());
 	manager->pushMessages(MessageSwitch::create("manager->sendMessage (AfterSetRoot)"));
 	manager->processMessages();
-	machine->sendMessage(MessageSwitch("manager->sendMessage (AfterSetRoot)"));
 	std::cout << "Example Finish" << std::endl;
 
 	return 0;
