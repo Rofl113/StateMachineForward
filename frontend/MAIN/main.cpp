@@ -81,16 +81,17 @@ protected:
 
 int main(int argc, char *argv[])
 {
-	std::unique_ptr<ManagerMessagesControl> manager (new ManagerMessages());
+	printf("Example Start\n");
 	{
-		std::unique_ptr<MachineControl> machine (new StateMachineMain());
-		manager->setMachine(std::move(machine));
+		std::unique_ptr<ManagerMessagesControl> manager (new ManagerMessages());
+		{
+			std::unique_ptr<MachineControl> machine (new StateMachineMain());
+			manager->setMachine(std::move(machine));
+		}
+		manager->pushMessages(MessageSwitch::create("manager->sendMessage (AfterSetRoot)"));
+		manager->processMessages();
 	}
-
-	std::cout << "Example Start" << std::endl;
-	manager->pushMessages(MessageSwitch::create("manager->sendMessage (AfterSetRoot)"));
-	manager->processMessages();
-	std::cout << "Example Finish" << std::endl;
+	printf("Example Finish\n");
 
 	return 0;
 }

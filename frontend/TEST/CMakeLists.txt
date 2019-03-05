@@ -1,15 +1,17 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(TEST)
+set(PROJ_NAME TEST)
+project(${PROJ_NAME})
 
 add_definitions(-std=c++11)
-set(CMAKE_CXX_STANDART 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 
+include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/backend)
+
 set(SOURCES
-    ./main.cpp
+	./main.cpp
 )
 
-link_directories(/usr/local/lib)
+add_executable(${PROJ_NAME} ${SOURCES})
 
-add_executable(TEST ${SOURCES})
+target_link_libraries(${PROJ_NAME} SM_LIBS)

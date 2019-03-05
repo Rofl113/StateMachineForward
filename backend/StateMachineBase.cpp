@@ -44,12 +44,12 @@ PtrMachineAction StateMachineBase::handleExit()
 	return this->createActionNext();
 }
 
-PtrMachineAction StateMachineBase::createActionSwitchState(StateMachineBase::TypeFuncCreateState&& func) const
+PtrMachineAction StateMachineBase::createActionSwitchStateFunc(StateMachineBase::TypeFuncCreateState&& func) const
 {
 	return PtrMachineAction{ new MachineActionSwitchState(std::move(func)) };
 }
 
-PtrMachineAction StateMachineBase::createActionPushState(StateMachineBase::TypeFuncCreateState&& func) const
+PtrMachineAction StateMachineBase::createActionPushStateFunc(StateMachineBase::TypeFuncCreateState&& func) const
 {
 	return PtrMachineAction{ new MachineActionPushState(std::move(func)) };
 }
@@ -59,9 +59,9 @@ PtrMachineAction StateMachineBase::createActionPopState(StateBase* state) const
 	return PtrMachineAction{ new MachineActionPopState(state) };
 }
 
-const StateBase* StateMachineBase::getParent() const
+const StateControl* StateMachineBase::getParent() const
 {
-	return this->_getParent()->cast<StateBase>();
+	return this->_getParent()->cast<StateControl>();
 }
 
 PtrMachineAction StateMachineBase::_handleEnter()

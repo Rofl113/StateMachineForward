@@ -6,7 +6,7 @@
 namespace StateMachineForward
 {
 
-class StateMachineBase;
+class StateMachineControl;
 
 class StateBase : public MachineBase, public StateControl
 {
@@ -17,38 +17,16 @@ protected:
 public:
 	virtual ~StateBase() override = default;
 
-	using TypeFuncCreateSm = std::function<StateMachineBase*()>;
-
-	PtrMachineAction createActionSwitchSm(TypeFuncCreateSm&& func) const;
-	PtrMachineAction createActionPushSm(TypeFuncCreateSm&& func) const;
-	PtrMachineAction createActionPopSm(StateMachineBase* sm) const;
-
-	template<typename TState, typename ... TArgs>
-	PtrMachineAction createActionSwitchSm(TArgs&& ... args) const
-	{
-		auto func = [args...] () -> StateMachineBase*
-		{
-			return { new TState(std::forward<TArgs>(args)...) };
-		};
-		return this->createActionSwitchSm(std::move(func));
-	}
-
-	template<typename TState, typename ... TArgs>
-	PtrMachineAction createActionPushSm(TArgs&& ... args) const
-	{
-		auto func = [args...] () -> StateMachineBase*
-		{
-			return { new TState(std::forward<TArgs>(args)...) };
-		};
-		return this->createActionSwitchSm(std::move(func));
-	}
-
 protected:
-	virtual PtrMachineAction handleEnter() override;
-	virtual PtrMachineAction handleMessage(const MachineMessage& message) override;
-	virtual PtrMachineAction handleExit() override;
+	virtual PtrMachineAction createActionSwitchSmFunc(TypeFuncCreateSm&& func) const override;
+	virtual PtrMachineAction createActionPushSmFunc(TypeFuncCreateSm&& func) const override;
+	virtual PtrMachineAction createActionPopSm(StateMachineBase* sm) const override;
 
-	const StateMachineBase* getParent() const;
+	virtual PtrMachineAction handleEnter();
+	virtual PtrMachineAction handleMessage(const MachineMessage& message);
+	virtual PtrMachineAction handleExit();
+
+	const StateMachineControl* getParent() const;
 
 private:
 	virtual PtrMachineAction _handleEnter() override;

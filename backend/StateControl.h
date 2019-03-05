@@ -6,6 +6,8 @@
 namespace StateMachineForward
 {
 
+class StateMachineBase;
+
 class StateControl
 {
 	StateControl& operator=(const StateControl &) = delete;
@@ -13,9 +15,35 @@ class StateControl
 protected:
 	StateControl() = default;
 	virtual ~StateControl() = default;
-	virtual PtrMachineAction handleEnter() = 0;
-	virtual PtrMachineAction handleMessage(const MachineMessage& message) = 0;
-	virtual PtrMachineAction handleExit() = 0;
+
+public:
+	using TypeFuncCreateSm = std::function<StateMachineBase*()>;
+
+	virtual PtrMachineAction createActionPopSm(StateMachineBase* sm) const = 0;
+
+	template<typename TState, typename ... TArgs>
+	PtrMachineAction createActionSwitchSm(TArgs&& ... args) const
+	{
+		auto func = [args...] () -> StateMachineBase*
+		{
+			return { new TState(std::forward<TArgs>(args)...) };
+		};
+		return this->createActionSwitchSmFunc(std::move(func));
+	}
+
+	template<typename TState, typename ... TArgs>
+	PtrMachineAction createActionPushSm(TArgs&& ... args) const
+	{
+		auto func = [args...] () -> StateMachineBase*
+		{
+			return { new TState(std::forward<TArgs>(args)...) };
+		};
+		return this->createActionPushSmFunc(std::move(func));
+	}
+
+protected:
+	virtual PtrMachineAction createActionSwitchSmFunc(TypeFuncCreateSm&& func) const = 0;
+	virtual PtrMachineAction createActionPushSmFunc(TypeFuncCreateSm&& func) const = 0;
 };
 
 } // end namespace StateMachineForward

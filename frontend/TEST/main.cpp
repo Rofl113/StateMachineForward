@@ -1,80 +1,97 @@
 #include <iostream>
 #include "StateMachineBase.h"
+#include "StateBase.h"
 #include "ManagerMessages.h"
 
-class MachineMessageHello : public MachineMessage
+
+using namespace StateMachineForward;
+
+class MessageSwitch: public MachineMessage
 {
 public:
-	MachineMessageHello(std::string name)
+	MessageSwitch(std::string name)
 		: m_name(name)
 	{
 
 	}
-	virtual ~MachineMessageHello() override {}
+	virtual ~MessageSwitch() override {}
 	static PtrMachineMessage create(std::string name)
 	{
-		return PtrMachineMessage(new MachineMessageHello(name));
+		return PtrMachineMessage(new MessageSwitch(name));
 	}
 
 	const std::string m_name;
 };
 
-class StateMachineHello : public StateMachineBase
+class StateB: public StateBase
 {
-protected:
-	virtual bool handleMessage(const MachineMessage& message) override
+public:
+	StateB()
+		: StateBase()
 	{
-		if (auto msg = message.cast<MachineMessageHello>())
+		printf("CREATE class StateB\n");
+	}
+	virtual ~StateB() override
+	{
+		printf("DELETE class StateB\n");
+	}
+};
+
+class StateA: public StateBase
+{
+public:
+	StateA()
+		: StateBase()
+	{
+		printf("CREATE class StateA\n");
+	}
+	virtual ~StateA() override
+	{
+		printf("DELETE class StateA\n");
+	}
+protected:
+	virtual PtrMachineAction handleMessage(const MachineMessage& message) override
+	{
+		if (const auto msg = message.cast<MessageSwitch>())
 		{
-			std::cout << msg->m_name << "= Hello!" << std::endl;
-			return true;
+			std::cout << "CHECK MessageSwitch: " << msg->m_name << std::endl;
+			return this->getParent()->createActionSwitchState<StateB>();
 		}
-		return false;
+		return this->createActionNext();
+	}
+};
+
+class StateMachineMain : public StateMachineBase
+{
+public:
+	StateMachineMain()
+		: StateMachineBase()
+	{
+	}
+protected:
+	virtual PtrMachineAction handleEnter() override
+	{
+		return this->createActionPushState<StateA>();
+	}
+	virtual PtrMachineAction handleMessage(const MachineMessage& /*message*/) override
+	{
+		return this->createActionNext();
 	}
 };
 
 int main(int argc, char *argv[])
 {
-	std::shared_ptr<ManagerMessagesControl> manager;
+	printf("Example Start\n");
 	{
-		auto mana = new ManagerMessages;
-		if (!mana)
+		std::unique_ptr<ManagerMessagesControl> manager (new ManagerMessages());
 		{
-			return -1;
+			std::unique_ptr<MachineControl> machine (new StateMachineMain());
+			manager->setMachine(std::move(machine));
 		}
-		manager = std::shared_ptr<ManagerMessagesControl>(mana);
-		mana = nullptr;
+		manager->pushMessages(MessageSwitch::create("manager->sendMessage (AfterSetRoot)"));
+		manager->processMessages();
 	}
-
-	std::shared_ptr<MachineControl> machine;
-	{
-		auto mach = new StateMachineHello;
-		if (!mach)
-		{
-			return -2;
-		}
-		machine = std::shared_ptr<MachineControl>(mach);
-		mach = nullptr;
-	}
-
-	std::cout << "Example One" << std::endl;
-	manager->setMachineRoot(nullptr);
-	machine->sendMessage(MachineMessageHello("machine->sendMessage (AfterSetRoot)"));
-	manager->pushMessages(MachineMessageHello::create("manager->sendMessage (AfterSetRoot)"));
-	manager->setMachineRoot(machine.get());
-	machine->sendMessage(MachineMessageHello("machine->sendMessage (BeforeSetRoot)"));
-	manager->pushMessages(MachineMessageHello::create("manager->sendMessage (BeforeSetRoot)"));
-	manager->processMessages();
-
-	std::cout << "\nExample Two" << std::endl;
-	manager->setMachineRoot(nullptr);
-	machine->sendMessage(MachineMessageHello("machine->sendMessage (AfterSetRoot)"));
-	manager->pushMessages(MachineMessageHello::create("manager->sendMessage (AfterSetRoot)"));
-	manager->processMessages();
-	manager->setMachineRoot(machine.get());
-	machine->sendMessage(MachineMessageHello("machine->sendMessage (BeforeSetRoot)"));
-	manager->pushMessages(MachineMessageHello::create("manager->sendMessage (BeforeSetRoot)"));
-	manager->processMessages();
+	printf("Example Finish\n");
 
 	return 0;
 }
