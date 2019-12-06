@@ -3,9 +3,6 @@
 #include <memory>
 
 
-namespace StateMachineForward
-{
-
 using PtrMachineMessage = std::shared_ptr<const MachineMessage>;
 
 class MachineControl
@@ -33,5 +30,3 @@ public:
 };
 
 using PtrMachineControl = std::unique_ptr<MachineControl>;
-
-} // end namespace StateMachineForward

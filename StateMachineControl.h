@@ -1,9 +1,7 @@
 #pragma once
+#include <functional>
 #include "MachineMessage.h"
 #include "MachineAction.h"
-
-namespace StateMachineForward
-{
 
 class StateBase;
 
@@ -44,5 +42,3 @@ protected:
 	virtual PtrMachineAction createActionSwitchStateFunc(TypeFuncCreateState&& func) const = 0;
 	virtual PtrMachineAction createActionPushStateFunc(TypeFuncCreateState&& func) const = 0;
 };
-
-} // end namespace StateMachineForward

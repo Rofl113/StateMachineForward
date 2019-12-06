@@ -2,9 +2,6 @@
 #include "MachineMessage.h"
 #include <memory>
 
-namespace StateMachineForward
-{
-
 class MachineControl;
 
 using PtrMachineMessage = std::shared_ptr<const MachineMessage>;
@@ -22,5 +19,3 @@ public:
 	virtual bool pushMessages(PtrMachineMessage&& msg) = 0;
 	virtual bool processMessages() = 0;
 };
-
-} // end namespace StateMachineForward

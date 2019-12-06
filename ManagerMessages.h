@@ -4,9 +4,6 @@
 #include "ManagerMessagesControl.h"
 
 
-namespace StateMachineForward
-{
-
 // Менеджер Сообщений
 class ManagerMessages : public MachineBase, public ManagerMessagesControl
 {
@@ -25,5 +22,3 @@ private:
 
 	std::queue<PtrMachineMessage> m_msgQueue;
 };
-
-} // end namespace StateMachineForward

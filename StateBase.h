@@ -3,8 +3,6 @@
 #include "StateControl.h"
 #include "MachineAction.h"
 
-namespace StateMachineForward
-{
 
 class StateMachineControl;
 
@@ -25,15 +23,14 @@ protected:
 	virtual PtrMachineAction handleEnter();
 	virtual PtrMachineAction handleMessage(const MachineMessage& message);
 	virtual PtrMachineAction handleExit();
+	virtual bool processAction(const MachineAction* action);
 
 	const StateMachineControl* getParent() const;
 
 private:
-	virtual PtrMachineAction _handleEnter() override;
-	virtual PtrMachineAction _handleMessage(const MachineMessage& message) override;
-	virtual PtrMachineAction _handleExit() override;
+	virtual PtrMachineAction _handleEnter() override final;
+	virtual PtrMachineAction _handleMessage(const MachineMessage& message) override final;
+	virtual PtrMachineAction _handleExit() override final;
 
-	virtual bool processAction(const MachineAction* action) override;
+	virtual bool _processAction(const MachineAction* action) override final;
 };
-
-} // end namespace StateMachineForward

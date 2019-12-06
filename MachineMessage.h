@@ -1,8 +1,5 @@
 #pragma once
 
-namespace StateMachineForward
-{
-
 class MachineMessage
 {
 public:
@@ -16,5 +13,3 @@ public:
 		return dynamic_cast<const T*>(this);
 	}
 };
-
-} // end namespace StateMachineForward

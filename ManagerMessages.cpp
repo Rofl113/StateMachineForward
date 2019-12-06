@@ -2,9 +2,6 @@
 #include "MachineControl.h"
 
 
-namespace StateMachineForward
-{
-
 ManagerMessages::ManagerMessages()
 {
 
@@ -59,5 +56,3 @@ void ManagerMessages::setMachine(std::unique_ptr<MachineControl>&& machine)
 	this->_popChild();
 	this->_pushChild(std::move(machine));
 }
-
-} // end namespace StateMachineForward

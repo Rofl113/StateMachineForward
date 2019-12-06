@@ -4,9 +4,6 @@
 #include <iostream>
 
 
-namespace StateMachineForward
-{
-
 PtrMachineAction MachineBase::createActionDontNext() const
 {
 	return PtrMachineAction(new MachineActionDontNext());
@@ -70,7 +67,7 @@ void MachineBase::pushMessage(PtrMachineMessage message)
 std::unique_ptr<MachineAction> MachineBase::_handleEnterFull()
 {
 	auto action = this->_handleEnter();
-	if (this->processAction(action.get()))
+	if (this->_processAction(action.get()))
 	{
 		return this->createActionDontNext();
 	}
@@ -80,7 +77,7 @@ std::unique_ptr<MachineAction> MachineBase::_handleEnterFull()
 		if (child)
 		{
 			const auto actionChild = child->_handleEnterFull();
-			if (this->processAction(actionChild.get()))
+			if (this->_processAction(actionChild.get()))
 			{
 				return this->createActionDontNext();
 			}
@@ -92,7 +89,7 @@ std::unique_ptr<MachineAction> MachineBase::_handleEnterFull()
 std::unique_ptr<MachineAction> MachineBase::_handleMessageFull(const MachineMessage& message)
 {
 	auto action = this->_handleMessage(message);
-	if (this->processAction(action.get()))
+	if (this->_processAction(action.get()))
 	{
 		return this->createActionDontNext();
 	}
@@ -102,7 +99,7 @@ std::unique_ptr<MachineAction> MachineBase::_handleMessageFull(const MachineMess
 		if (child)
 		{
 			action = child->_handleMessageFull(message);
-			if (this->processAction(action.get()))
+			if (this->_processAction(action.get()))
 			{
 				return this->createActionDontNext();
 			}
@@ -120,7 +117,7 @@ std::unique_ptr<MachineAction> MachineBase::_handleExitFull()
 		if (child)
 		{
 			const auto actionChild = child->_handleExitFull();
-			if (this->processAction(actionChild.get()))
+			if (this->_processAction(actionChild.get()))
 			{
 				return this->createActionDontNext();
 			}
@@ -128,7 +125,7 @@ std::unique_ptr<MachineAction> MachineBase::_handleExitFull()
 	}
 	// Затем завершаем текущую машину
 	auto action = this->_handleExit();
-	if (this->processAction(action.get()))
+	if (this->_processAction(action.get()))
 	{
 		return this->createActionDontNext();
 	}
@@ -166,7 +163,7 @@ void MachineBase::setParent(MachineControl* parent)
 	}
 }
 
-bool MachineBase::processAction(const MachineAction* action)
+bool MachineBase::_processAction(const MachineAction* action)
 {
 	if (action)
 	{
@@ -177,5 +174,3 @@ bool MachineBase::processAction(const MachineAction* action)
 	}
 	return false;
 }
-
-} // end namespace StateMachineForward

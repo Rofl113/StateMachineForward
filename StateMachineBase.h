@@ -4,9 +4,6 @@
 #include "MachineAction.h"
 
 
-namespace StateMachineForward
-{
-
 class StateControl;
 
 class StateMachineBase : public MachineBase, public StateMachineControl
@@ -30,11 +27,8 @@ protected:
 	const StateControl* getParent() const;
 
 private:
-	virtual PtrMachineAction _handleEnter() override;
-	virtual PtrMachineAction _handleMessage(const MachineMessage& message) override;
-	virtual PtrMachineAction _handleExit() override;
-
-	virtual bool processAction(const MachineAction* action) override;
+	virtual PtrMachineAction _handleEnter() override final;
+	virtual PtrMachineAction _handleMessage(const MachineMessage& message) override final;
+	virtual PtrMachineAction _handleExit() override final;
+	virtual bool _processAction(const MachineAction* action) override final;
 };
-
-} // end namespace StateMachineForward

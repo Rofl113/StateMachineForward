@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-set(SOURCES_SM
+set(SOURCES_StateMachine
     ./MachineAction.h
     ./MachineControl.h
     ./MachineBase.cpp
@@ -13,4 +13,4 @@ set(SOURCES_SM
     ./StateMachineBase.cpp
     )
 
-add_library(SM_LIBS STATIC ${SOURCES_SM})  # Создание статической библиотеки
+add_library(Rofl113_StateMachine_Lib STATIC ${SOURCES_StateMachine})  # Создание статической библиотеки

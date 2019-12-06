@@ -3,9 +3,6 @@
 
 
 
-namespace StateMachineForward
-{
-
 namespace
 {
 	class MachineActionSwitchSm : public MachineAction
@@ -80,7 +77,7 @@ PtrMachineAction StateBase::_handleExit()
 	return this->handleExit();
 }
 
-bool StateBase::processAction(const MachineAction* action)
+bool StateBase::_processAction(const MachineAction* action)
 {
 	if (const auto actionSwitch = action->cast<MachineActionSwitchSm>())
 	{
@@ -101,7 +98,10 @@ bool StateBase::processAction(const MachineAction* action)
 		}
 		return true;
 	}
-	return ClassBase::processAction(action);
+	return ClassBase::_processAction(action);
 }
 
-} // end namespace StateMachineForward
+bool StateBase::processAction(const MachineAction* /*action*/)
+{
+	return false;
+}

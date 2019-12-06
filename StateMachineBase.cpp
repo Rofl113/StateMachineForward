@@ -2,9 +2,6 @@
 #include "StateBase.h"
 
 
-namespace StateMachineForward
-{
-
 namespace
 {
 	class MachineActionSwitchState : public MachineAction
@@ -79,7 +76,7 @@ PtrMachineAction StateMachineBase::_handleExit()
 	return this->handleExit();
 }
 
-bool StateMachineBase::processAction(const MachineAction* action)
+bool StateMachineBase::_processAction(const MachineAction* action)
 {
 	if (const auto actionSwitch = action->cast<MachineActionSwitchState>())
 	{
@@ -100,7 +97,5 @@ bool StateMachineBase::processAction(const MachineAction* action)
 		}
 		return true;
 	}
-	return ClassBase::processAction(action);
+	return ClassBase::_processAction(action);
 }
-
-} // end namespace StateMachineForward

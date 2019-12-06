@@ -6,9 +6,6 @@
 
 
 
-namespace StateMachineForward
-{
-
 class ManagerMessagesControl;
 class MachineAction;
 
@@ -34,11 +31,12 @@ protected:
 
 	const MachineControl* _getParent() const;
 
-	virtual bool processAction(const MachineAction* action);
+	virtual bool _processAction(const MachineAction* action);
+
+	virtual void pushMessage(PtrMachineMessage message) override final;
 
 private:
-	virtual void sendMessage(const MachineMessage& message) override;
-	virtual void pushMessage(PtrMachineMessage message) override;
+	virtual void sendMessage(const MachineMessage& message) override final;
 
 	std::unique_ptr<MachineAction> _handleEnterFull();
 	std::unique_ptr<MachineAction> _handleMessageFull(const MachineMessage& message);
@@ -51,5 +49,3 @@ private:
 	// childs
 	std::stack<std::unique_ptr<MachineControl>> m_childs;
 };
-
-} // end namespace StateMachineForward
