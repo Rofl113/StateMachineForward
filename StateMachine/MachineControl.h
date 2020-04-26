@@ -1,9 +1,8 @@
 #pragma once
-#include "MachineMessage.h"
 #include <memory>
+#include "MachineMessage.h"
 
 
-using PtrMachineMessage = std::shared_ptr<const MachineMessage>;
 
 class MachineControl
 {

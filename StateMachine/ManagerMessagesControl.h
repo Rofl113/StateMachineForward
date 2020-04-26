@@ -1,10 +1,9 @@
 #pragma once
-#include "MachineMessage.h"
 #include <memory>
+#include "MachineMessage.h"
 
 class MachineControl;
 
-using PtrMachineMessage = std::shared_ptr<const MachineMessage>;
 
 // Менеджер Сообщений
 class ManagerMessagesControl

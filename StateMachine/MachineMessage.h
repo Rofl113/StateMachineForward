@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 
 class MachineMessage
 {
@@ -13,3 +14,7 @@ public:
 		return dynamic_cast<const T*>(this);
 	}
 };
+
+
+
+using PtrMachineMessage = std::shared_ptr<const MachineMessage>;
