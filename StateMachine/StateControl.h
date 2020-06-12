@@ -10,17 +10,20 @@ class StateMachineBase;
 
 class StateControl
 {
-	StateControl& operator=(const StateControl &) = delete;
-	StateControl(const StateControl &) = delete;
 protected:
 	StateControl() = default;
+public:
 	virtual ~StateControl() = default;
+	StateControl& operator=(const StateControl &) = delete;
+	StateControl(const StateControl &) = delete;
 
 public:
 	using TypeFuncCreateSm = std::function<StateMachineBase*()>;
 
+public:
 	virtual PtrMachineAction createActionPopSm(StateMachineBase* sm) const = 0;
 
+public:
 	template<typename TState, typename ... TArgs>
 	PtrMachineAction createActionSwitchSm(TArgs&& ... args) const
 	{

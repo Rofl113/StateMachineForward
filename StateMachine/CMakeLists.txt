@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
 
-
 set(SOURCES_StateMachine
     ./MachineBase.cpp
     ./ManagerMessages.cpp

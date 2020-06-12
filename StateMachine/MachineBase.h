@@ -31,7 +31,7 @@ protected:
 
 	const MachineControl* _getParent() const;
 
-	virtual bool _processAction(const MachineAction* action);
+	virtual bool _processAction(const MachineAction& action);
 
 	virtual void pushMessage(PtrMachineMessage message) override final;
 

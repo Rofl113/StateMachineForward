@@ -7,6 +7,7 @@ namespace
 	class MachineActionSwitchState : public MachineAction
 	{
 	public:
+		MachineActionSwitchState() = delete;
 		MachineActionSwitchState(StateMachineBase::TypeFuncCreateState&& func) : m_func(func) {}
 		const StateMachineBase::TypeFuncCreateState m_func;
 	};
@@ -14,6 +15,7 @@ namespace
 	class MachineActionPushState : public MachineAction
 	{
 	public:
+		MachineActionPushState() = delete;
 		MachineActionPushState(StateMachineBase::TypeFuncCreateState&& func) : m_func(func) {}
 		const StateMachineBase::TypeFuncCreateState m_func;
 	};
@@ -21,8 +23,9 @@ namespace
 	class MachineActionPopState : public MachineAction
 	{
 	public:
+		MachineActionPopState() = delete;
 		MachineActionPopState(StateBase* state) : m_state(state) {}
-		const StateBase* m_state;
+		const StateBase* m_state = nullptr;
 	};
 } // end namespace
 
@@ -58,7 +61,7 @@ PtrMachineAction StateMachineBase::createActionPopState(StateBase* state) const
 
 const StateControl* StateMachineBase::getParent() const
 {
-	return this->_getParent()->cast<StateControl>();
+	return dynamic_cast<const StateControl*>(this->_getParent());
 }
 
 PtrMachineAction StateMachineBase::_handleEnter()
@@ -76,20 +79,20 @@ PtrMachineAction StateMachineBase::_handleExit()
 	return this->handleExit();
 }
 
-bool StateMachineBase::_processAction(const MachineAction* action)
+bool StateMachineBase::_processAction(const MachineAction& action)
 {
-	if (const auto actionSwitch = action->cast<MachineActionSwitchState>())
+	if (const auto actionSwitch = dynamic_cast<const MachineActionSwitchState*>(&action))
 	{
 		this->_popChild();
 		this->_pushChild(std::unique_ptr<MachineControl>(actionSwitch->m_func()));
 		return true;
 	}
-	else if (const auto actionPush = action->cast<MachineActionPushState>())
+	else if (const auto actionPush = dynamic_cast<const MachineActionPushState*>(&action))
 	{
 		this->_pushChild(std::unique_ptr<MachineControl>(actionPush->m_func()));
 		return true;
 	}
-	else if (const auto actionPop = action->cast<MachineActionPopState>())
+	else if (const auto actionPop = dynamic_cast<const MachineActionPopState*>(&action))
 	{
 		if (this->_getChild() == actionPop->m_state)
 		{

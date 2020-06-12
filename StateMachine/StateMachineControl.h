@@ -7,17 +7,21 @@ class StateBase;
 
 class StateMachineControl
 {
-	StateMachineControl& operator=(const StateMachineControl &) = delete;
-	StateMachineControl(const StateMachineControl &) = delete;
 protected:
 	StateMachineControl() = default;
+
+public:
 	virtual ~StateMachineControl() = default;
+	StateMachineControl(const StateMachineControl &) = delete;
+	StateMachineControl& operator=(const StateMachineControl &) = delete;
 
 public:
 	using TypeFuncCreateState = std::function<StateBase*()>;
 
+public:
 	virtual PtrMachineAction createActionPopState(StateBase* state) const = 0;
 
+public:
 	template<typename TState, typename ... TArgs>
 	PtrMachineAction createActionSwitchState(TArgs&& ... args) const
 	{

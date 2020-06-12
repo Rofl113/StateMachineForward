@@ -30,5 +30,5 @@ private:
 	virtual PtrMachineAction _handleEnter() override final;
 	virtual PtrMachineAction _handleMessage(const MachineMessage& message) override final;
 	virtual PtrMachineAction _handleExit() override final;
-	virtual bool _processAction(const MachineAction* action) override final;
+	virtual bool _processAction(const MachineAction& action) override final;
 };

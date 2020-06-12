@@ -67,9 +67,12 @@ void MachineBase::pushMessage(PtrMachineMessage message)
 std::unique_ptr<MachineAction> MachineBase::_handleEnterFull()
 {
 	auto action = this->_handleEnter();
-	if (this->_processAction(action.get()))
+	if (action)
 	{
-		return this->createActionDontNext();
+		if (this->_processAction(*action.get()))
+		{
+			return this->createActionDontNext();
+		}
 	}
 	if (!m_childs.empty())
 	{
@@ -77,9 +80,12 @@ std::unique_ptr<MachineAction> MachineBase::_handleEnterFull()
 		if (child)
 		{
 			const auto actionChild = child->_handleEnterFull();
-			if (this->_processAction(actionChild.get()))
+			if (actionChild)
 			{
-				return this->createActionDontNext();
+				if (this->_processAction(*actionChild.get()))
+				{
+					return this->createActionDontNext();
+				}
 			}
 		}
 	}
@@ -89,9 +95,12 @@ std::unique_ptr<MachineAction> MachineBase::_handleEnterFull()
 std::unique_ptr<MachineAction> MachineBase::_handleMessageFull(const MachineMessage& message)
 {
 	auto action = this->_handleMessage(message);
-	if (this->_processAction(action.get()))
+	if (action)
 	{
-		return this->createActionDontNext();
+		if (this->_processAction(*action.get()))
+		{
+			return this->createActionDontNext();
+		}
 	}
 	if (!m_childs.empty())
 	{
@@ -99,9 +108,12 @@ std::unique_ptr<MachineAction> MachineBase::_handleMessageFull(const MachineMess
 		if (child)
 		{
 			action = child->_handleMessageFull(message);
-			if (this->_processAction(action.get()))
+			if (action)
 			{
-				return this->createActionDontNext();
+				if (this->_processAction(*action.get()))
+				{
+					return this->createActionDontNext();
+				}
 			}
 		}
 	}
@@ -117,17 +129,23 @@ std::unique_ptr<MachineAction> MachineBase::_handleExitFull()
 		if (child)
 		{
 			const auto actionChild = child->_handleExitFull();
-			if (this->_processAction(actionChild.get()))
+			if (actionChild)
 			{
-				return this->createActionDontNext();
+				if (this->_processAction(*actionChild.get()))
+				{
+					return this->createActionDontNext();
+				}
 			}
 		}
 	}
 	// Затем завершаем текущую машину
 	auto action = this->_handleExit();
-	if (this->_processAction(action.get()))
+	if (action)
 	{
-		return this->createActionDontNext();
+		if (this->_processAction(*action.get()))
+		{
+			return this->createActionDontNext();
+		}
 	}
 	return action;
 }
@@ -163,14 +181,11 @@ void MachineBase::setParent(MachineControl* parent)
 	}
 }
 
-bool MachineBase::_processAction(const MachineAction* action)
+bool MachineBase::_processAction(const MachineAction& action)
 {
-	if (action)
+	if (dynamic_cast<const MachineActionDontNext*>(&action))
 	{
-		if (action->cast<MachineActionDontNext>())
-		{
-			return true;
-		}
+		return true;
 	}
 	return false;
 }

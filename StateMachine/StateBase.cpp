@@ -8,6 +8,7 @@ namespace
 	class MachineActionSwitchSm : public MachineAction
 	{
 	public:
+		MachineActionSwitchSm() = delete;
 		MachineActionSwitchSm(StateBase::TypeFuncCreateSm&& func) : m_func(func) {}
 		const StateBase::TypeFuncCreateSm m_func;
 	};
@@ -15,6 +16,7 @@ namespace
 	class MachineActionPushSm : public MachineAction
 	{
 	public:
+		MachineActionPushSm() = delete;
 		MachineActionPushSm(StateBase::TypeFuncCreateSm&& func) : m_func(func) {}
 		const StateBase::TypeFuncCreateSm m_func;
 	};
@@ -22,8 +24,9 @@ namespace
 	class MachineActionPopSm : public MachineAction
 	{
 	public:
+		MachineActionPopSm() = delete;
 		MachineActionPopSm(StateMachineBase* sm) : m_sm(sm) {}
-		const StateMachineBase* m_sm;
+		const StateMachineBase* m_sm = nullptr;
 	};
 } // end namespace
 
@@ -59,7 +62,7 @@ PtrMachineAction StateBase::createActionPopSm(StateMachineBase* sm) const
 
 const StateMachineControl* StateBase::getParent() const
 {
-	return this->_getParent()->cast<StateMachineControl>();
+	return dynamic_cast<const StateMachineControl*>(this->_getParent());
 }
 
 PtrMachineAction StateBase::_handleEnter()
@@ -77,20 +80,20 @@ PtrMachineAction StateBase::_handleExit()
 	return this->handleExit();
 }
 
-bool StateBase::_processAction(const MachineAction* action)
+bool StateBase::_processAction(const MachineAction& action)
 {
-	if (const auto actionSwitch = action->cast<MachineActionSwitchSm>())
+	if (const auto actionSwitch = dynamic_cast<const MachineActionSwitchSm*>(&action))
 	{
 		this->_popChild();
 		this->_pushChild(std::unique_ptr<MachineControl>(actionSwitch->m_func()));
 		return true;
 	}
-	else if (const auto actionPush = action->cast<MachineActionPushSm>())
+	else if (const auto actionPush = dynamic_cast<const MachineActionPushSm*>(&action))
 	{
 		this->_pushChild(std::unique_ptr<MachineControl>(actionPush->m_func()));
 		return true;
 	}
-	else if (const auto actionPop = action->cast<MachineActionPopSm>())
+	else if (const auto actionPop = dynamic_cast<const MachineActionPopSm*>(&action))
 	{
 		if (this->_getChild() == actionPop->m_sm)
 		{
