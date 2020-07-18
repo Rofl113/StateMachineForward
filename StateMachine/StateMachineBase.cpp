@@ -64,6 +64,11 @@ const StateControl* StateMachineBase::getParent() const
 	return dynamic_cast<const StateControl*>(this->_getParent());
 }
 
+void StateMachineBase::popState()
+{
+	this->_popChild();
+}
+
 PtrMachineAction StateMachineBase::_handleEnter()
 {
 	return this->handleEnter();
@@ -101,4 +106,29 @@ bool StateMachineBase::_processAction(const MachineAction& action)
 		return true;
 	}
 	return ClassBase::_processAction(action);
+}
+
+const MachineControl* StateMachineBase::_getChild() const
+{
+	return ClassBase::_getChild();
+}
+
+MachineControl* StateMachineBase::_getChild()
+{
+	return ClassBase::_getChild();
+}
+
+void StateMachineBase::_pushChild(std::unique_ptr<MachineControl>&& child)
+{
+	ClassBase::_pushChild(std::move(child));
+}
+
+std::unique_ptr<MachineControl> StateMachineBase::_popChild()
+{
+	return ClassBase::_popChild();
+}
+
+const MachineControl* StateMachineBase::_getParent() const
+{
+	return ClassBase::_getParent();
 }

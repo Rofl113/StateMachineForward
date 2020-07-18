@@ -60,6 +60,11 @@ PtrMachineAction StateBase::createActionPopSm(StateMachineBase* sm) const
 	return PtrMachineAction{ new MachineActionPopSm(sm) };
 }
 
+void StateBase::resetSm()
+{
+	this->_popChild();
+}
+
 const StateMachineControl* StateBase::getParent() const
 {
 	return dynamic_cast<const StateMachineControl*>(this->_getParent());
@@ -107,4 +112,29 @@ bool StateBase::_processAction(const MachineAction& action)
 bool StateBase::processAction(const MachineAction* /*action*/)
 {
 	return false;
+}
+
+const MachineControl* StateBase::_getChild() const
+{
+	return ClassBase::_getChild();
+}
+
+MachineControl* StateBase::_getChild()
+{
+	return ClassBase::_getChild();
+}
+
+void StateBase::_pushChild(std::unique_ptr<MachineControl>&& child)
+{
+	ClassBase::_pushChild(std::move(child));
+}
+
+std::unique_ptr<MachineControl> StateBase::_popChild()
+{
+	return ClassBase::_popChild();
+}
+
+const MachineControl* StateBase::_getParent() const
+{
+	return ClassBase::_getParent();
 }
