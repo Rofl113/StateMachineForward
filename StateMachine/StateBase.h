@@ -22,17 +22,16 @@ protected:
 	virtual bool processAction(const MachineAction* action);
 
 protected:
-	virtual PtrMachineAction createActionSwitchSmFunc(TypeFuncCreateSm&& func) const override final;
-	virtual PtrMachineAction createActionPushSmFunc(TypeFuncCreateSm&& func) const override final;
-	virtual PtrMachineAction createActionPopSm(StateMachineBase* sm) const override final;
+	virtual PtrMachineAction createActionCreateSmFunc(TypeFuncCreateSm&& func) const override final;
+	virtual PtrMachineAction createActionResetSm(StateMachineBase* sm) const override final;
 
 protected:
 	template<typename TState, typename ... TArgs>
 	void createSm(TArgs&& ... args)
 	{
-		static_assert (std::is_base_of<TState, StateMachineBase>().value, "Bad Type StateMachine!");
+		static_assert (std::is_base_of<StateMachineBase, TState>().value, "Bad Type StateMachine!");
 		this->resetSm();
-		this->_pushChild({ new TState(std::forward<TArgs>(args)...) });
+		this->_pushChild(std::unique_ptr<MachineControl>{ new TState(std::forward<TArgs>(args)...) });
 	}
 	void resetSm();
 

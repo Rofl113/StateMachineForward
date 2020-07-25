@@ -5,27 +5,19 @@
 
 namespace
 {
-	class MachineActionSwitchSm : public MachineAction
+	class MachineActionCreateSm : public MachineAction
 	{
 	public:
-		MachineActionSwitchSm() = delete;
-		MachineActionSwitchSm(StateBase::TypeFuncCreateSm&& func) : m_func(func) {}
+		MachineActionCreateSm() = delete;
+		MachineActionCreateSm(StateBase::TypeFuncCreateSm&& func) : m_func(func) {}
 		const StateBase::TypeFuncCreateSm m_func;
 	};
 
-	class MachineActionPushSm : public MachineAction
+	class MachineActionResetSm : public MachineAction
 	{
 	public:
-		MachineActionPushSm() = delete;
-		MachineActionPushSm(StateBase::TypeFuncCreateSm&& func) : m_func(func) {}
-		const StateBase::TypeFuncCreateSm m_func;
-	};
-
-	class MachineActionPopSm : public MachineAction
-	{
-	public:
-		MachineActionPopSm() = delete;
-		MachineActionPopSm(StateMachineBase* sm) : m_sm(sm) {}
+		MachineActionResetSm() = delete;
+		MachineActionResetSm(StateMachineBase* sm) : m_sm(sm) {}
 		const StateMachineBase* m_sm = nullptr;
 	};
 } // end namespace
@@ -43,21 +35,6 @@ PtrMachineAction StateBase::handleMessage(const MachineMessage& /*message*/)
 PtrMachineAction StateBase::handleExit()
 {
 	return this->createActionNext();
-}
-
-PtrMachineAction StateBase::createActionSwitchSmFunc(StateBase::TypeFuncCreateSm&& func) const
-{
-	return PtrMachineAction{ new MachineActionSwitchSm(std::move(func)) };
-}
-
-PtrMachineAction StateBase::createActionPushSmFunc(StateBase::TypeFuncCreateSm&& func) const
-{
-	return PtrMachineAction{ new MachineActionPushSm(std::move(func)) };
-}
-
-PtrMachineAction StateBase::createActionPopSm(StateMachineBase* sm) const
-{
-	return PtrMachineAction{ new MachineActionPopSm(sm) };
 }
 
 void StateBase::resetSm()
@@ -87,18 +64,13 @@ PtrMachineAction StateBase::_handleExit()
 
 bool StateBase::_processAction(const MachineAction& action)
 {
-	if (const auto actionSwitch = dynamic_cast<const MachineActionSwitchSm*>(&action))
+	if (const auto actionSwitch = dynamic_cast<const MachineActionCreateSm*>(&action))
 	{
-		this->_popChild();
+		this->resetSm();
 		this->_pushChild(std::unique_ptr<MachineControl>(actionSwitch->m_func()));
 		return true;
 	}
-	else if (const auto actionPush = dynamic_cast<const MachineActionPushSm*>(&action))
-	{
-		this->_pushChild(std::unique_ptr<MachineControl>(actionPush->m_func()));
-		return true;
-	}
-	else if (const auto actionPop = dynamic_cast<const MachineActionPopSm*>(&action))
+	else if (const auto actionPop = dynamic_cast<const MachineActionResetSm*>(&action))
 	{
 		if (this->_getChild() == actionPop->m_sm)
 		{
@@ -112,6 +84,16 @@ bool StateBase::_processAction(const MachineAction& action)
 bool StateBase::processAction(const MachineAction* /*action*/)
 {
 	return false;
+}
+
+PtrMachineAction StateBase::createActionCreateSmFunc(StateControl::TypeFuncCreateSm&& func) const
+{
+	return PtrMachineAction{ new MachineActionCreateSm(std::move(func)) };
+}
+
+PtrMachineAction StateBase::createActionResetSm(StateMachineBase* sm) const
+{
+	return PtrMachineAction{ new MachineActionResetSm(sm) };
 }
 
 const MachineControl* StateBase::_getChild() const

@@ -29,8 +29,8 @@ protected:
 	template<typename TState, typename ... TArgs>
 	void pushState(TArgs&& ... args)
 	{
-		static_assert (std::is_base_of<TState, StateBase>().value, "Bad Type State!");
-		this->_pushChild({ new TState(std::forward<TArgs>(args)...) });
+		static_assert (std::is_base_of<StateBase, TState>().value, "Bad Type State!");
+		this->_pushChild(std::unique_ptr<MachineControl>{ new TState(std::forward<TArgs>(args)...) });
 	}
 	void popState();
 
