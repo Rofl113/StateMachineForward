@@ -74,21 +74,6 @@ std::unique_ptr<MachineAction> MachineBase::_handleEnterFull()
 			return this->createActionDontNext();
 		}
 	}
-	if (!m_childs.empty())
-	{
-		auto child = dynamic_cast<MachineBase*>(m_childs.top().get());
-		if (child)
-		{
-			const auto actionChild = child->_handleEnterFull();
-			if (actionChild)
-			{
-				if (this->_processAction(*actionChild.get()))
-				{
-					return this->createActionDontNext();
-				}
-			}
-		}
-	}
 	return this->createActionNext();
 }
 
@@ -123,20 +108,9 @@ std::unique_ptr<MachineAction> MachineBase::_handleMessageFull(const MachineMess
 std::unique_ptr<MachineAction> MachineBase::_handleExitFull()
 {
 	// Сначала завершаем дочернюю машину
-	if (!m_childs.empty())
+	while (!m_childs.empty())
 	{
-		auto child = dynamic_cast<MachineBase*>(m_childs.top().get());
-		if (child)
-		{
-			const auto actionChild = child->_handleExitFull();
-			if (actionChild)
-			{
-				if (this->_processAction(*actionChild.get()))
-				{
-					return this->createActionDontNext();
-				}
-			}
-		}
+		this->_popChild();
 	}
 	// Затем завершаем текущую машину
 	auto action = this->_handleExit();
